@@ -35,20 +35,20 @@ button{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;backg
 
 <div class="container">
 
-<input type="text" value="Cierre: martes 8:oo am" disabled>
+<input type="text" id="info-cierre" value="Cierre: Martes 8:00 AM" style="text-align: center; font-weight: bold; color: #1e293b;" disabled>
 
 <input type="text" id="nombre" placeholder="Nombre del participante">
 
 <div id="partidos"></div>
 
-<button onclick="agregarQuiniela()">Generar Quiniela</button>
-<button onclick="limpiar()">Limpiar</button>
+<button id="btn-generar" onclick="agregarQuiniela()">Generar Quiniela</button>
+<button id="btn-limpiar" onclick="limpiar()">Limpiar</button>
 
 <div id="lista" class="lista"></div>
 
 <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px; align-items: center;">
   
-  <button class="btn-whatsapp" onclick="enviarWhats()" style="width: 100%; max-width: 300px;">
+  <button id="btn-whats" class="btn-whatsapp" onclick="enviarWhats()" style="width: 100%; max-width: 300px;">
     Enviar por WhatsApp
   </button>
 
@@ -65,8 +65,9 @@ button{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;backg
     </a>
   </div>
 
-</div> <script>
+</div> 
 
+<script>
 const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzDabFVFUzTy3qu8VvPNT4ne1UfUs7v8seBEen4Y4Hvyo104wA-irdlvLCo8REjQhBuYg/exec";
 
 // 1. LISTA REAL DE PARTIDOS DE LA JORNADA (10 Partidos)
@@ -101,12 +102,13 @@ partidosJornada.forEach((juego, i) => {
 });
 
 function seleccionarOpcion(btn) {
+  if (btn.disabled) return; // Evita selección si está cerrado
   const contenedorOpciones = btn.parentElement;
   if (btn.classList.contains("seleccionado")) {
     btn.classList.remove("seleccionado");
   } else {
     contenedorOpciones.querySelectorAll("button").forEach(b => b.classList.remove("seleccionado"));
-    btn.classList.add("seleccionado");
+    btn.add(btn.classList.add("seleccionado"));
   }
 }
 
@@ -187,45 +189,49 @@ function limpiar(){
   location.reload();
 }
 
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    // --- CONFIGURACIÓN DE LA FECHA DE CIERRE ---
-    // Martes 23 de Junio de 2026 a las 8:00 AM
-    const fechaCierre = new Date(2026, 5, 23, 8, 0, 0); 
-    const fechaActual = new Date();
+// --- SISTEMA AUTOMÁTICO DE RELOJ DE CIERRE ---
+document.addEventListener("DOMContentLoaded", function() {
+  const fechaCierre = new Date("2026-06-23T08:00:00"); 
+  const fechaActual = new Date();
 
-    if (fechaActual > fechaCierre) {
-      // 1. Buscamos el formulario de la quiniela
-      const formulario = document.querySelector("form") || document.getElementById("form-quiniela");
-      const botonEnviar = document.querySelector("button[type='submit']") || document.getElementById("btn-enviar");
-
-      // 2. Desactivamos el botón de enviar para que no den clic
-      if (botonEnviar) {
-        botonEnviar.disabled = true;
-        botonEnviar.innerText = "Quiniela Cerrada";
-        botonEnviar.style.backgroundColor = "#6c757d"; // Lo pintamos de gris
-      }
-
-      // 3. Desactivamos todos los campos para que no puedan seleccionar nada
-      if (formulario) {
-        const elementos = formulario.elements;
-        for (let i = 0; i < elementos.length; i++) {
-          elementos[i].disabled = true;
-        }
-      }
-
-      // 4. Creamos y mostramos un aviso grande y llamativo arriba
-      const avisoCierre = document.createElement("div");
-      avisoCierre.innerHTML = `
-        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 20px; border: 1px solid #f5c6cb; border-radius: 5px; text-align: center; font-weight: bold; font-size: 1.1em;">
-          🚨 EL REGISTRO HA CERRADO 🚨<br>
-          La quiniela cerró el martes a las 8:00 am. Ya no se aceptan más respuestas. ¡Gracias por participar!
-        </div>
-      `;
-      // Lo insertamos al principio de la página web
-      document.body.insertBefore(avisoCierre, document.body.firstChild);
+  if (fechaActual > fechaCierre) {
+    // 1. Cambiar el indicador superior
+    const infoCierre = document.getElementById("info-cierre");
+    if(infoCierre) {
+      infoCierre.value = "❌ REGISTRO CERRADO";
+      infoCierre.style.color = "#721c24";
+      infoCierre.style.backgroundColor = "#f8d7da";
     }
-  });
+
+    // 2. Desactivar campos de texto y botones principales
+    document.getElementById("nombre").disabled = true;
+    document.getElementById("btn-generar").disabled = true;
+    document.getElementById("btn-limpiar").disabled = true;
+    
+    const btnWhats = document.getElementById("btn-whats");
+    if(btnWhats) {
+      btnWhats.disabled = true;
+      btnWhats.innerText = "Quiniela Cerrada";
+      btnWhats.style.backgroundColor = "#6c757d";
+    }
+
+    // 3. Desactivar todos los botones de opciones (L, E, V)
+    document.querySelectorAll(".opciones button").forEach(btn => {
+      btn.disabled = true;
+      btn.style.opacity = "0.5";
+    });
+
+    // 4. Mostrar bloque de advertencia superior
+    const avisoCierre = document.createElement("div");
+    avisoCierre.innerHTML = `
+      <div style="background-color: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 20px; border: 1px solid #f5c6cb; border-radius: 5px; text-align: center; font-weight: bold; font-size: 1.1em; font-family: Arial, sans-serif;">
+        🚨 EL REGISTRO HA CERRADO 🚨<br>
+        La quiniela cerró el martes a las 8:00 am. Ya no se aceptan más respuestas. ¡Gracias por participar!
+      </div>
+    `;
+    document.body.insertBefore(avisoCierre, document.body.firstChild);
+  }
+});
 </script>
 
 </body>
