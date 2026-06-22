@@ -187,6 +187,45 @@ function limpiar(){
   location.reload();
 }
 
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // --- CONFIGURACIÓN DE LA FECHA DE CIERRE ---
+    // Martes 23 de Junio de 2026 a las 8:00 AM
+    const fechaCierre = new Date(2026, 5, 23, 8, 0, 0); 
+    const fechaActual = new Date();
+
+    if (fechaActual > fechaCierre) {
+      // 1. Buscamos el formulario de la quiniela
+      const formulario = document.querySelector("form") || document.getElementById("form-quiniela");
+      const botonEnviar = document.querySelector("button[type='submit']") || document.getElementById("btn-enviar");
+
+      // 2. Desactivamos el botón de enviar para que no den clic
+      if (botonEnviar) {
+        botonEnviar.disabled = true;
+        botonEnviar.innerText = "Quiniela Cerrada";
+        botonEnviar.style.backgroundColor = "#6c757d"; // Lo pintamos de gris
+      }
+
+      // 3. Desactivamos todos los campos para que no puedan seleccionar nada
+      if (formulario) {
+        const elementos = formulario.elements;
+        for (let i = 0; i < elementos.length; i++) {
+          elementos[i].disabled = true;
+        }
+      }
+
+      // 4. Creamos y mostramos un aviso grande y llamativo arriba
+      const avisoCierre = document.createElement("div");
+      avisoCierre.innerHTML = `
+        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 20px; border: 1px solid #f5c6cb; border-radius: 5px; text-align: center; font-weight: bold; font-size: 1.1em;">
+          🚨 EL REGISTRO HA CERRADO 🚨<br>
+          La quiniela cerró el martes a las 8:00 am. Ya no se aceptan más respuestas. ¡Gracias por participar!
+        </div>
+      `;
+      // Lo insertamos al principio de la página web
+      document.body.insertBefore(avisoCierre, document.body.firstChild);
+    }
+  });
 </script>
 
 </body>
