@@ -35,7 +35,8 @@ button{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;backg
 
 <div class="container">
 
-<input type="text" id="info-cierre" value="Cierre: Martes 8:00 AM" style="text-align: center; font-weight: bold; color: #1e293b;" disabled>
+<!-- Modificado: Indicador de Cierre Viernes 10:00 AM -->
+<input type="text" id="info-cierre" value="Cierre: Viernes 10:00 AM" style="text-align: center; font-weight: bold; color: #1e293b;" disabled>
 
 <input type="text" id="nombre" placeholder="Nombre del participante">
 
@@ -70,18 +71,20 @@ button{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;backg
 <script>
 const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzDabFVFUzTy3qu8VvPNT4ne1UfUs7v8seBEen4Y4Hvyo104wA-irdlvLCo8REjQhBuYg/exec";
 
-// 1. LISTA REAL DE PARTIDOS DE LA JORNADA (10 Partidos)
+// 1. LISTA ACTUALIZADA A 12 PARTIDOS
 const partidosJornada = [
-  "portugal vs uzbekistan",     // Partido 1
-  "inglaterra vs ghana",        // Partido 2
-  "panama vs croacia",          // Partido 3
-  "colombia vs rd congo",       // Partido 4
-  "suiza vs canada",            // Partido 5
-  "bosnia vs catar",            // Partido 6
-  "marruecos vs haiti",         // Partido 7
-  "escosia vs brasil",          // Partido 8
-  "sudafrica vs corea del sur", // Partido 9
-  "chequia vs mexico"           // Partido 10
+  "Noruega vs Francia",
+  "Senegal vs Irak",
+  "Cabo Verde vs Arabia Saudita",
+  "Uruguay vs España",
+  "Nueva Zelanda vs Bélgica",
+  "Egipto vs irán",
+  "Panamá vs Inglaterra",
+  "Croacia vs Ghana",
+  "Colombia vs Portugal",
+  "RD Congo vs Uzbekistán",
+  "Argelia vs Austria",
+  "Jordania vs Argentina"
 ];
 
 const contenedor = document.getElementById("partidos");
@@ -102,13 +105,13 @@ partidosJornada.forEach((juego, i) => {
 });
 
 function seleccionarOpcion(btn) {
-  if (btn.disabled) return; // Evita selección si está cerrado
+  if (btn.disabled) return; 
   const contenedorOpciones = btn.parentElement;
   if (btn.classList.contains("seleccionado")) {
     btn.classList.remove("seleccionado");
   } else {
     contenedorOpciones.querySelectorAll("button").forEach(b => b.classList.remove("seleccionado"));
-    btn.add(btn.classList.add("seleccionado"));
+    btn.classList.add("seleccionado");
   }
 }
 
@@ -191,7 +194,8 @@ function limpiar(){
 
 // --- SISTEMA AUTOMÁTICO DE RELOJ DE CIERRE ---
 document.addEventListener("DOMContentLoaded", function() {
-  const fechaCierre = new Date("2026-06-23T08:00:00"); 
+  // Configurado para el Viernes 26 de Junio de 2026 a las 10:00 AM
+  const fechaCierre = new Date("2026-06-26T10:00:00"); 
   const fechaActual = new Date();
 
   if (fechaActual > fechaCierre) {
@@ -226,7 +230,7 @@ document.addEventListener("DOMContentLoaded", function() {
     avisoCierre.innerHTML = `
       <div style="background-color: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 20px; border: 1px solid #f5c6cb; border-radius: 5px; text-align: center; font-weight: bold; font-size: 1.1em; font-family: Arial, sans-serif;">
         🚨 EL REGISTRO HA CERRADO 🚨<br>
-        La quiniela cerró el martes a las 8:00 am. Ya no se aceptan más respuestas. ¡Gracias por participar!
+        La quiniela cerró el viernes a las 10:00 am. Ya no se aceptan más respuestas. ¡Gracias por participar!
       </div>
     `;
     document.body.insertBefore(avisoCierre, document.body.firstChild);
