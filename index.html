@@ -7,7 +7,7 @@
   
 <style>
 body{
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background:#0f172a;
   color:white;
   margin:0;
@@ -17,7 +17,7 @@ body{
 h1{margin:0;color:#38bdf8;}
 .container{padding:20px;max-width:600px;margin:auto;}
 input{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;background:#e5e7eb;}
-button{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;background:#38bdf8;font-weight:bold;}
+button{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;background:#38bdf8;font-weight:bold;cursor:pointer;}
 .partido{background:#1e293b;margin:10px 0;padding:10px;border-radius:12px;}
 .opciones {display: flex; justify-content: center; gap: 10px;}
 .opciones button{width:30%;margin:2px;}
@@ -35,8 +35,8 @@ button{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;backg
 
 <div class="container">
 
-<!-- Modificado: Indicador de Cierre Viernes 10:00 AM -->
-<input type="text" id="info-cierre" value="Cierre: Viernes 10:00 AM" style="text-align: center; font-weight: bold; color: #1e293b;" disabled>
+<!-- Indicador de Cierre Modificado a las 17:00 Hrs -->
+<input type="text" id="info-cierre" value="Cierre: Viernes 31 de Julio 17:00 Hrs" style="text-align: center; font-weight: bold; color: #1e293b;" disabled>
 
 <input type="text" id="nombre" placeholder="Nombre del participante">
 
@@ -71,20 +71,17 @@ button{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;backg
 <script>
 const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzDabFVFUzTy3qu8VvPNT4ne1UfUs7v8seBEen4Y4Hvyo104wA-irdlvLCo8REjQhBuYg/exec";
 
-// 1. LISTA ACTUALIZADA A 12 PARTIDOS
+// 1. LISTA DE 9 PARTIDOS
 const partidosJornada = [
-  "Noruega vs Francia",
-  "Senegal vs Irak",
-  "Cabo Verde vs Arabia Saudita",
-  "Uruguay vs España",
-  "Nueva Zelanda vs Bélgica",
-  "Egipto vs irán",
-  "Panamá vs Inglaterra",
-  "Croacia vs Ghana",
-  "Colombia vs Portugal",
-  "RD Congo vs Uzbekistán",
-  "Argelia vs Austria",
-  "Jordania vs Argentina"
+  "Puebla vs Guadalajara",
+  "Juárez vs Pumas",
+  "San Luis vs Tijuana",
+  "Querétaro vs Tigres",
+  "Atlas vs Monterrey",
+  "León vs Pachuca",
+  "Cruz Azul vs Atlante",
+  "América vs Santos",
+  "Toluca vs Necaxa"
 ];
 
 const contenedor = document.getElementById("partidos");
@@ -129,7 +126,7 @@ function obtenerPronosticos(){
   });
 
   if(faltaSeleccion){
-    alert("Falta seleccionar el resultado en algunos partidos");
+    alert("⚠️ Falta seleccionar el resultado en algunos partidos");
     return [];
   }
 
@@ -158,9 +155,28 @@ async function enviarWhats() {
     return;
   }
 
+  // --- VERIFICACIÓN DE DUPLICADOS CON GOOGLE SHEETS ---
+  try {
+    document.getElementById("btn-whats").disabled = true;
+    document.getElementById("btn-whats").innerText = "Verificando nombre...";
+
+    let respuesta = await fetch(URL_SCRIPT);
+    let nombresRegistrados = await respuesta.json();
+
+    if (nombresRegistrados.includes(nombreEnvio.toLowerCase())) {
+      alert(`⚠️ El nombre "${nombreEnvio}" ya participó en esta Quiniela.\n\nPor favor agrega un distintivo (ejemplo: ${nombreEnvio} 2) si deseas meter otra jugada.`);
+      
+      document.getElementById("btn-whats").disabled = false;
+      document.getElementById("btn-whats").innerText = "Enviar por WhatsApp";
+      return; 
+    }
+  } catch (err) {
+    console.error("No se pudo verificar el duplicado, continuando con el envío...", err);
+  }
+
   let listaEnvio = pronosticosEnvio.join(" - ");
 
-  // Enviar a Google Sheets de manera silenciosa
+  // Enviar a Google Sheets
   try {
     fetch(URL_SCRIPT, {
       method: "POST",
@@ -175,7 +191,7 @@ async function enviarWhats() {
   }
 
   // Enviar por WhatsApp
-  let mensaje = `📊 *Quiniela Gratis Liga MX*\n\n👤 *Usuario:* ${nombreEnvio}\n\n📋 *Jugada:* ${listaEnvio}`;
+  let mensaje = `📊 *Quiniela Gratis*\n\n👤 *Usuario:* ${nombreEnvio}\n\n📋 *Jugada:* ${listaEnvio}`;
   let numero = "525610791509";
   window.open(`https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`);
 
@@ -194,12 +210,11 @@ function limpiar(){
 
 // --- SISTEMA AUTOMÁTICO DE RELOJ DE CIERRE ---
 document.addEventListener("DOMContentLoaded", function() {
-  // Configurado para el Viernes 26 de Junio de 2026 a las 10:00 AM
-  const fechaCierre = new Date("2026-06-26T10:00:00"); 
+  // Configurado exactamente para el Viernes 31 de Julio a las 17:00 Hrs (5:00 PM)
+  const fechaCierre = new Date("2026-07-31T17:00:00"); 
   const fechaActual = new Date();
 
   if (fechaActual > fechaCierre) {
-    // 1. Cambiar el indicador superior
     const infoCierre = document.getElementById("info-cierre");
     if(infoCierre) {
       infoCierre.value = "❌ REGISTRO CERRADO";
@@ -207,7 +222,6 @@ document.addEventListener("DOMContentLoaded", function() {
       infoCierre.style.backgroundColor = "#f8d7da";
     }
 
-    // 2. Desactivar campos de texto y botones principales
     document.getElementById("nombre").disabled = true;
     document.getElementById("btn-generar").disabled = true;
     document.getElementById("btn-limpiar").disabled = true;
@@ -219,18 +233,16 @@ document.addEventListener("DOMContentLoaded", function() {
       btnWhats.style.backgroundColor = "#6c757d";
     }
 
-    // 3. Desactivar todos los botones de opciones (L, E, V)
     document.querySelectorAll(".opciones button").forEach(btn => {
       btn.disabled = true;
       btn.style.opacity = "0.5";
     });
 
-    // 4. Mostrar bloque de advertencia superior
     const avisoCierre = document.createElement("div");
     avisoCierre.innerHTML = `
       <div style="background-color: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 20px; border: 1px solid #f5c6cb; border-radius: 5px; text-align: center; font-weight: bold; font-size: 1.1em; font-family: Arial, sans-serif;">
         🚨 EL REGISTRO HA CERRADO 🚨<br>
-        La quiniela cerró el viernes a las 10:00 am. Ya no se aceptan más respuestas. ¡Gracias por participar!
+        La quiniela cerró el viernes 31 de julio a las 17:00 hrs. Ya no se aceptan más respuestas. ¡Gracias por participar!
       </div>
     `;
     document.body.insertBefore(avisoCierre, document.body.firstChild);
